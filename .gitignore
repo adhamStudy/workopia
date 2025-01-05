@@ -1,0 +1,6 @@
+/vendor
+/node_modules
+/config/db.pph
+.env
+.vscode
+.DS_Store
