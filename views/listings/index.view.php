@@ -5,9 +5,7 @@
 loadPartial('navbar');
 ?>
 
-<!-- Showcase -->
-<?php
-loadPartial('showcase-search'); ?>
+
 
 <!-- Top Banner -->
 <?php
@@ -38,19 +36,15 @@ loadPartial('top-banner');
                                 <span>Coding</span>
                             </li>
                         </ul>
-                        <a href="/listings?id=<?= $listing->id ?>"
+                        <a href="/listings/<?= $listing->id ?>"
                             class="block w-full text-center px-5 py-2.5 shadow-sm rounded border text-base font-medium text-indigo-700 bg-indigo-100 hover:bg-indigo-200">
                             Details
                         </a>
                     </div>
                 </div>
             <?php endforeach; ?>
-
         </div>
-        <a href="listings" class="block text-xl text-center">
-            <i class="fa fa-arrow-alt-circle-right"></i>
-            Show All Jobs
-        </a>
+
 </section>
 
 <!-- Bottom Banner -->
