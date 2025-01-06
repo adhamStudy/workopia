@@ -11,7 +11,9 @@ loadPartial('navbar');
 <?php
 loadPartial('top-banner');
 ?>
-
+<?php
+loadPartial('top-banner');
+?>
 <!-- Post a Job Form Box -->
 <section class="flex justify-center items-center mt-20">
     <div class="bg-white p-8 rounded-lg shadow-md w-full md:w-600 mx-6">
