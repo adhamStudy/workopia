@@ -8,6 +8,9 @@
 //     http_response_code(404);
 //     require basePath($routes['404']);
 // }
+namespace Framework;
+
+use App\Controllers\ErrorController;
 
 class Router
 {
@@ -22,21 +25,15 @@ class Router
      * @return void
      * 
      */
-
-    public function error($httpCode = 404)
+    public function registerRoute($method, $uri, $action)
     {
-        http_response_code($httpCode);
-        loadView("error/{$httpCode}");
-        exit;
-    }
-
-
-    public function registerRoute($method, $uri, $controller)
-    {
+        list($controller, $controllerMethod) = explode('@', $action);
+        // inspectAndDie($controllerMethod);
         $this->routes[] = [
             'method' => $method,
             'uri' => $uri,
-            'controller' => $controller
+            'controller' => $controller,
+            'controllerMethod' => $controllerMethod
         ];
     }
 
@@ -90,15 +87,52 @@ class Router
      * @param string $method
      * @return void
      */
-    public function route($uri, $method)
+    public function route($uri)
     {
-        foreach ($this->routes as $route) {
-            if ($route['uri'] === $uri && $route['method'] === $method) {
+        $requestMethod = $_SERVER['REQUEST_METHOD'];
 
-                require basePath('App/' . $route['controller']);
-                return;
+        foreach ($this->routes as $route) {
+            // Split the current URI into segments
+            $uriSegments = explode('/', trim($uri, '/'));
+
+            // Split the route URI into segments
+            $routeSegments = explode('/', trim($route['uri'], '/'));
+            $match = true;
+
+            // Check if the number of segments matches and the request method matches
+            if (count($uriSegments) === count($routeSegments) && strtoupper($route['method']) === $requestMethod) {
+                $params = [];
+                $match = true;
+                for ($i = 0; $i < count($uriSegments); $i++) {
+                    if ($routeSegments[$i] !== $uriSegments[$i] && !preg_match(
+                        '/\{(.+?)\}/',
+                        $routeSegments[$i]
+                    )) {
+                        $match = false;
+                        break;
+                    }
+                    if (preg_match('/\{(.+?)\}/', $routeSegments[$i], $matches)) {
+                        $params[$matches[$i]] = $uriSegments[$i];
+                        // inspectAndDie($params);
+                    }
+                }
+                if ($match) {
+                    $controller = 'App\\Controllers\\' . $route['controller'];
+                    $controllerMethod = $route['controllerMethod'];
+
+                    // Instatiate the controller and call the method
+                    $controllerInstance = new $controller();
+                    $controllerInstance->$controllerMethod($params);
+                    return;
+                }
             }
         }
-        $this->error(403);
+        // if ($route['uri'] === $uri && $route['method'] === $erquestMethod) {
+
+        //     // Extract controller and controller method
+        //     
+        // }
+        // If no route matches, show a 404 error
+        ErrorController::unAuthorized();
     }
 }
