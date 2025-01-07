@@ -1,12 +1,18 @@
 <?php
+
+namespace Framework; // Corrected namespace
+
+use PDO;
+use PDOException; // Import PDOException
+use Exception; // Import Exception
+
 class Database
 {
     public $conn;
 
     /**
-     * Constractor for database class
+     * Constructor for Database class
      * @param array $config
-     * 
      */
     public function __construct($config)
     {
@@ -14,19 +20,21 @@ class Database
         $options = [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_OBJ
-
         ];
 
         try {
             $this->conn = new PDO($dsn, $config['username'], $config['password'], $options);
         } catch (PDOException $e) {
-            throw new Exception("database connection Failed: {$e}");
+            throw new Exception("Database connection failed: {$e->getMessage()}"); // Use $e->getMessage() for the error message
         }
     }
+
     /**
-     * @param $query
-     * @return PDOStatement
-     * @throws PDOException
+     * Execute a query
+     * @param string $query
+     * @param array $params
+     * @return \PDOStatement
+     * @throws Exception
      */
     public function query($query, $params = [])
     {
@@ -39,7 +47,7 @@ class Database
             $sth->execute();
             return $sth;
         } catch (PDOException $e) {
-            throw new Exception("Query failed to execute: {$e->getMessage()}");
+            throw new Exception("Query failed to execute: {$e->getMessage()}"); // Use $e->getMessage() for the error message
         }
     }
 }
