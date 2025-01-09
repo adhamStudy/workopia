@@ -117,8 +117,7 @@ class Router
                         break;
                     }
                     if (preg_match('/\{(.+?)\}/', $routeSegments[$i], $matches)) {
-                        $params[$matches[$i]] = $uriSegments[$i];
-                        // inspectAndDie($params);
+                        $params[$matches[1]] = $uriSegments[$i]; // <-- Correct
                     }
                 }
                 if ($match) {

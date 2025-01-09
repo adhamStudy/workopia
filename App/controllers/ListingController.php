@@ -44,6 +44,7 @@ class ListingController
             ErrorController::notFound('Listing not found');
             return;
         }
+        // inspectAndDie($listing);
 
         loadView('listings/show', [
             'listing' => $listing
@@ -138,5 +139,97 @@ class ListingController
         $_SESSION['success_message'] = 'Listing Delete successfully';
 
         redirect('/listings');
+    }
+
+
+    public function edit($params)
+    {
+        $id = $params['id'] ?? '';
+
+        // inspect($id);
+
+        $params = [
+            'id' => $id
+        ];
+
+        $listing = $this->db->query('select * from listings where id =:id', $params)->fetch();
+
+        if (!$listing) {
+            ErrorController::notFound('Listing not found');
+            return;
+        }
+        // inspectAndDie($listing);
+
+        loadView('listings/edit', [
+            'listing' => $listing
+        ]);
+    }
+
+    /**
+     * update Listing
+     * @param array $params
+     * @return void
+     */
+    public function update($params)
+    {
+        $id = $params['id'] ?? '';
+
+        // inspect($id);
+
+        $params = [
+            'id' => $id
+        ];
+
+        $listing = $this->db->query('select * from listings where id =:id', $params)->fetch();
+
+        if (!$listing) {
+            ErrorController::notFound('Listing not found');
+            return;
+        }
+        $allowedFields = [
+            'title',
+            'description',
+            'salary',
+            'tags',
+            'company',
+            'address',
+            'city',
+            'state',
+            'phone',
+            'email',
+            'requirements',
+            'benefits'
+        ];
+        $updateValues = [];
+        $updateValues = array_intersect_key($_POST, array_flip($allowedFields));
+        $updateValues = array_map('sanitize', $updateValues);
+        $requiredFields = ['title', 'description', 'salary', 'email', 'city', 'state'];
+        $errors = [];
+
+        foreach ($requiredFields as $field) {
+            if (empty($updateValues[$field]) || !Validation::string($updateValues[$field])) {
+                $errors[$field] = ucfirst($field) . ' is required ';
+            }
+        }
+
+        if (!empty($errors)) {
+            loadView('listings/edit', [
+                'listing' => $listing,
+                'errors' => $errors
+            ]);
+            exit;
+        } else {
+            // submit to database
+            $updateFields = [];
+            foreach (array_keys($updateValues) as $field) {
+                $updateFields[] = "{$field} = :{$field}";
+            }
+            $updateValues['id'] = $id;
+            $updateFields = implode(', ', $updateFields);
+            $updateQuery = "UPDATE listings SET $updateFields where id = :id";
+            $this->db->query($updateQuery, $updateValues);
+            $_SESSION['success_message'] = 'Listing Delete successfully';
+            redirect('/listings/' . $id);
+        }
     }
 }
