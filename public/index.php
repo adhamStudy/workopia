@@ -1,13 +1,18 @@
 <?php
 // Include the helpers file
 require __DIR__ . '/../vendor/autoload.php';
-require '../helpers.php';
 
 use Framework\Router;
+use Framework\Seassion;
 
-session_start();
+
+Seassion::start();
+require '../helpers.php';
 // instaiiationg the router
 $router = new Router();
+
+// inspectAndDie(session_status());
+
 // get routes
 $routes = require basePath('routes.php');
 // get current URI and HTTP method

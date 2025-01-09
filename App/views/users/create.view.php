@@ -26,7 +26,7 @@
                     name="name"
                     placeholder="Full Name"
                     class="w-full px-4 py-2 border rounded focus:outline-none"
-                    value="<?= $old['name'] ?? '' ?>" />
+                    value="<?= $user['name'] ?? '' ?>" />
             </div>
             <div class="mb-4">
                 <input
@@ -34,7 +34,7 @@
                     name="email"
                     placeholder="Email Address"
                     class="w-full px-4 py-2 border rounded focus:outline-none"
-                    value="<?= $old['email'] ?? '' ?>" />
+                    value="<?= $user['email'] ?? '' ?>" />
             </div>
             <div class="mb-4">
                 <input
@@ -42,7 +42,7 @@
                     name="city"
                     placeholder="City"
                     class="w-full px-4 py-2 border rounded focus:outline-none"
-                    value="<?= $old['city'] ?? '' ?>" />
+                    value="<?= $user['city'] ?? '' ?>" />
             </div>
             <div class="mb-4">
                 <input
@@ -50,7 +50,7 @@
                     name="state"
                     placeholder="State"
                     class="w-full px-4 py-2 border rounded focus:outline-none"
-                    value="<?= $old['state'] ?? '' ?>" />
+                    value="<?= $user['state'] ?? '' ?>" />
             </div>
             <div class="mb-4">
                 <input
