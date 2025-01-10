@@ -4,6 +4,8 @@ namespace App\Controllers;
 
 use Framework\Database;
 use Framework\Validation;
+use Framework\Seassion;
+use Framework\Authorization;
 
 class ListingController
 {
@@ -16,7 +18,7 @@ class ListingController
 
     public function index()
     {
-        $listings = $this->db->query('SELECT * FROM listings')->fetchAll();
+        $listings = $this->db->query('SELECT * FROM listings ORDER BY created_at DESC')->fetchAll();
         // inspectAndDie(Validation::match('123', '123'));
 
         loadView('/listings/index', [
@@ -72,7 +74,7 @@ class ListingController
             'benefits'
         ];
         $newListingData = array_intersect_key($_POST, array_flip($allowedFields));
-        $newListingData['user_id'] = 1;
+        $newListingData['user_id'] = Seassion::get('user')['id'];
         $newListingData = array_map('sanitize', $newListingData);
         $requiredFields = ['title', 'description', 'email', 'phone', 'city', 'state', 'salary'];
         $errors = [];
@@ -111,6 +113,8 @@ class ListingController
             // inspectAndDie($values);
             $query = "insert into listings ({$fields})values({$values})";
             $this->db->query($query, $newListingData);
+            Seassion::setFlashMessage('success_message', 'Listing Created successfully');
+
             redirect('/listings');
         }
     }
@@ -128,15 +132,26 @@ class ListingController
         ];
 
         $listing = $this->db->query('SELECT * FROM listings where id = :id', $params)->fetch();
+        // Check if listing exists
         if (!$listing) {
             ErrorController::notFound();
+            return;
+        }
+        // inspectAndDie($listing->user_id);
+
+        // Autherization
+        if (!Authorization::isOwner($listing->user_id)) {
+
+            // inspectAndDie('you are not authorized');
+            Seassion::setFlashMessage('error_message', 'You ar enot authorized to delete this listing');
+            return redirect('/listings/' . $listing->id);
         }
 
         $this->db->query('DELETE from listings where id =:id', $params);
 
 
         // Set flash Message
-        $_SESSION['success_message'] = 'Listing Delete successfully';
+        Seassion::setFlashMessage('success_message', 'Listing Delete successfully');
 
         redirect('/listings');
     }
@@ -153,6 +168,14 @@ class ListingController
         ];
 
         $listing = $this->db->query('select * from listings where id =:id', $params)->fetch();
+
+        if (!Authorization::isOwner($listing->user_id)) {
+
+            // inspectAndDie('you are not authorized');
+            Seassion::setFlashMessage('error_message', 'You ar enot authorized to delete this listing');
+            return redirect('/listings/' . $listing->id);
+        }
+
 
         if (!$listing) {
             ErrorController::notFound('Listing not found');
@@ -186,6 +209,14 @@ class ListingController
             ErrorController::notFound('Listing not found');
             return;
         }
+
+        if (!Authorization::isOwner($listing->user_id)) {
+
+            // inspectAndDie('you are not authorized');
+            Seassion::setFlashMessage('error_message', 'You ar enot authorized to delete this listing');
+            return redirect('/listings/' . $listing->id);
+        }
+
         $allowedFields = [
             'title',
             'description',
@@ -228,8 +259,22 @@ class ListingController
             $updateFields = implode(', ', $updateFields);
             $updateQuery = "UPDATE listings SET $updateFields where id = :id";
             $this->db->query($updateQuery, $updateValues);
-            $_SESSION['success_message'] = 'Listing Delete successfully';
+            Seassion::setFlashMessage('success_message', 'Listing updated succuess');
+
             redirect('/listings/' . $id);
         }
+    }
+
+
+    /**
+     * Search Listings by keywords/location
+     * @return void
+     */
+    public function search()
+    {
+        // inspectAndDie($_GET);
+        $keywords = isset($_GET['keywords']) ? trim($_GET['keywords']) : '';
+        $location = isset($_GET['location']) ? trim($_GET['location']) : '';
+        // inspectAndDie($location);
     }
 }
