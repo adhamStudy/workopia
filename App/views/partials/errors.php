@@ -1,7 +1,5 @@
-<?php if (isset($errors)): ?>
-    <?php foreach ($errors as $error): ?>
-        <p class=" message bg-red-100 my-3"> <?= $error ?> </p>
+<?php if (isset($errors)) : ?>
+    <?php foreach ($errors as $error) : ?>
+        <div class="message bg-red-100 my-3"><?= $error ?></div>
     <?php endforeach; ?>
-    </div>
-
 <?php endif; ?>

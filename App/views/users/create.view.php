@@ -8,16 +8,7 @@
     <div class="bg-white p-8 rounded-lg shadow-md w-full md:w-500 mx-6">
         <h2 class="text-4xl text-center font-bold mb-4">Register</h2>
 
-        <!-- Display validation errors -->
-        <?php if (!empty($errors)): ?>
-            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
-                <ul>
-                    <?php foreach ($errors as $error): ?>
-                        <li><?= $error ?></li>
-                    <?php endforeach; ?>
-                </ul>
-            </div>
-        <?php endif; ?>
+        <?php loadPartial('errors', ['errors' => $errors ?? []]) ?>
 
         <form method="POST" action="/auth/register">
             <div class="mb-4">

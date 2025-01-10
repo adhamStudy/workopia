@@ -104,14 +104,77 @@ class UserController
         $this->db->query('INSERT INTO users (name,email,city,state,password)values(:name,:email,:city,:state,:password)', $params);
 
         $userId = $this->db->conn->lastInsertId();
-        Seassion::set($user, [
+        Seassion::set('user', [
             'id' => $userId,
             'email' => $email,
             'name' => $name,
             'city' => $city,
             'state' => $state
         ]);
-        inspectAndDie(Seassion::get($user));
+        // inspectAndDie(Seassion::get($user));
+        redirect('/');
+    }
+    /**
+     * Logout a user and kill session
+     * @return void 
+     * 
+     */
+    public function logout()
+    {
+        Seassion::clearAll();
+        $params = session_get_cookie_params();
+        setcookie('PHPSESSID', '', time() - 86400, $params['domain']);
+        redirect('/');
+    }
+    /**
+     * Authenticate a user with email and password 
+     * @return void
+     */
+    public function authenticate()
+    {
+        $email = $_POST['email'];
+        $password = $_POST['password'];
+        $errors = [];
+        // Validate email
+        if (!Validation::email($email)) {
+            $errors['email'] = 'Please enter a valid email';
+        }
+        if (!Validation::string($password, 6, 50)) {
+            $errors['password'] = 'Please must be at least 6 characters';
+        }
+        // check for errors
+        if (!empty($errors)) {
+            loadView('users/login', ['errors' => $errors]);
+            exit;
+        }
+        // check for email
+        $params = [
+            'email' => $email,
+        ];
+        $user = $this->db->query('SELECT * FROM users where email =:email', $params)->fetch();
+
+        if (!$user) {
+            $errors['email'] = 'Incorrect Credintials on this email';
+            loadView('/users/login', ['errors' => $errors]);
+            exit;
+        }
+
+
+        // check if password is corrent
+        if (!password_verify($password, $user->password)) {
+            $errors['password'] = 'Wrong password';
+            loadView('/users/login', ['errors' => $errors]);
+            exit;
+        }
+
+        // Set user Seassion 
+        Seassion::set('user', [
+            'id' => $user->id,
+            'email' => $user->email,
+            'name' => $user->name,
+            'city' => $user->city,
+            'state' => $user->state
+        ]);
         redirect('/');
     }
 }

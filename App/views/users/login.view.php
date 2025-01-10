@@ -12,7 +12,8 @@ loadPartial('navbar');
         <div class="message bg-green-100 p-3 my-3">
           This is a success message.
         </div> -->
-        <form>
+        <?php loadPartial('errors', ['errors' => $errors ?? []]) ?>
+        <form method="POST" action="/auth/login">
             <div class="mb-4">
                 <input
                     type="email"
